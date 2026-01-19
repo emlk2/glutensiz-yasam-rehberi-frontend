@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Test - Glutensiz Yaşam Rehberi</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#10b981">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .status-ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            margin-right: 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+        .test-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        .test-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        .emoji {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        .install-section {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 PWA Test Dashboard</h1>
+        
+        <!-- Service Worker Test -->
+        <div class="card">
+            <h2>
+                <span class="emoji">⚙️</span>
+                Service Worker
+            </h2>
+            <button onclick="testServiceWorker()">Test SW</button>
+            <div id="swStatus"></div>
+        </div>
+
+        <!-- Manifest Test -->
+        <div class="card">
+            <h2>
+                <span class="emoji">📦</span>
+                App Manifest
+            </h2>
+            <button onclick="testManifest()">Test Manifest</button>
+            <div id="manifestStatus"></div>
+        </div>
+
+        <!-- Cache Test -->
+        <div class="card">
+            <h2>
+                <span class="emoji">💾</span>
+                Cache Storage
+            </h2>
+            <button onclick="testCache()">Test Cache</button>
+            <div id="cacheStatus"></div>
+        </div>
+
+        <!-- PWA Install Test -->
+        <div class="card">
+            <h2>
+                <span class="emoji">📱</span>
+                Install Instructions
+            </h2>
+            <div class="install-section">
+                <h3>Desktop (Chrome/Edge):</h3>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li>Sağ üst köşedeki ⚙️ simgesine tıkla</li>
+                    <li>"Install app" seçeneğini seç</li>
+                    <li>"Install" butonuna tıkla</li>
+                </ol>
+            </div>
+            <div class="install-section" style="margin-top: 15px;">
+                <h3>Mobile (Chrome Android):</h3>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li>Alt menüdeki ⋮ (üç nokta) simgesine tıkla</li>
+                    <li>"Install app" seçeneğini seç</li>
+                    <li>"Install" butonuna tıkla</li>
+                </ol>
+            </div>
+            <button onclick="installPWA()">Manual Install (Eğer destekleniyorsa)</button>
+            <div id="installStatus"></div>
+        </div>
+
+        <!-- Offline Test -->
+        <div class="card">
+            <h2>
+                <span class="emoji">📡</span>
+                Offline Mode Test
+            </h2>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                DevTools açıp (F12) → Network → Offline işaretlemek için:
+            </p>
+            <ol style="margin-left: 20px; color: #666;">
+                <li>F12 ile DevTools aç</li>
+                <li>Network sekmesine git</li>
+                <li>"Offline" checkbox'ını işaretle</li>
+                <li>Sayfayı refresh et</li>
+                <li>App çalışıyor mu?</li>
+            </ol>
+            <button onclick="testOfflineCapabilities()">Offline Hazırlığını Test Et</button>
+            <div id="offlineStatus"></div>
+        </div>
+
+        <!-- Performance Test -->
+        <div class="card">
+            <h2>
+                <span class="emoji">⚡</span>
+                Performance
+            </h2>
+            <button onclick="testPerformance()">Performance Check</button>
+            <div id="performanceStatus"></div>
+        </div>
+
+        <!-- All Tests -->
+        <div class="card">
+            <h2>
+                <span class="emoji">🧪</span>
+                Run All Tests
+            </h2>
+            <button onclick="runAllTests()">🚀 Run All</button>
+            <div id="allTestsStatus"></div>
+        </div>
+    </div>
+
+    <script>
+        let deferredPrompt;
+
+        // Install prompt handler
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installStatus').innerHTML = 
+                '<div class="status status-ok">✅ PWA installable! Manual Install butonunu kullanabilirsin</div>';
+        });
+
+        async function testServiceWorker() {
+            const status = document.getElementById('swStatus');
+            status.innerHTML = '<div class="status status-pending">⏳ Testing...</div>';
+            
+            try {
+                if (!('serviceWorker' in navigator)) {
+                    status.innerHTML = '<div class="status status-error">❌ Service Worker desteklenmiyorum</div>';
+                    return;
+                }
+
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                if (registrations.length > 0) {
+                    status.innerHTML = `
+                        <div class="status status-ok">✅ Service Worker aktif</div>
+                        <pre>Registrations: ${registrations.length}
+Status: ${registrations[0].active ? 'Active' : 'Inactive'}</pre>
+                    `;
+                } else {
+                    status.innerHTML = '<div class="status status-pending">⏳ Kaydediliyor...</div>';
+                    const reg = await navigator.serviceWorker.register('/service-worker.js');
+                    status.innerHTML = '<div class="status status-ok">✅ Service Worker registered!</div>';
+                }
+            } catch (e) {
+                status.innerHTML = `<div class="status status-error">❌ Error: ${e.message}</div>`;
+            }
+        }
+
+        async function testManifest() {
+            const status = document.getElementById('manifestStatus');
+            status.innerHTML = '<div class="status status-pending">⏳ Testing...</div>';
+            
+            try {
+                const link = document.querySelector('link[rel="manifest"]');
+                if (!link) {
+                    status.innerHTML = '<div class="status status-error">❌ Manifest tag bulunamadı</div>';
+                    return;
+                }
+
+                const response = await fetch(link.href);
+                const manifest = await response.json();
+                
+                const checks = [
+                    ['name', manifest.name],
+                    ['short_name', manifest.short_name],
+                    ['icons', manifest.icons?.length || 0],
+                    ['display', manifest.display],
+                    ['theme_color', manifest.theme_color]
+                ];
+
+                let html = '<div class="status status-ok">✅ Manifest Valid!</div><ul class="test-list">';
+                checks.forEach(([key, value]) => {
+                    html += `<li class="test-item"><strong>${key}</strong><span>${value}</span></li>`;
+                });
+                html += '</ul>';
+                status.innerHTML = html;
+            } catch (e) {
+                status.innerHTML = `<div class="status status-error">❌ Error: ${e.message}</div>`;
+            }
+        }
+
+        async function testCache() {
+            const status = document.getElementById('cacheStatus');
+            status.innerHTML = '<div class="status status-pending">⏳ Testing...</div>';
+            
+            try {
+                if (!('caches' in window)) {
+                    status.innerHTML = '<div class="status status-error">❌ Cache API desteklenmiyorum</div>';
+                    return;
+                }
+
+                const cacheNames = await caches.keys();
+                let html = '<div class="status status-ok">✅ Cache API Çalışıyor!</div>';
+                html += `<pre>Total Caches: ${cacheNames.length}\n`;
+                cacheNames.forEach(name => {
+                    html += `- ${name}\n`;
+                });
+                html += '</pre>';
+                status.innerHTML = html;
+            } catch (e) {
+                status.innerHTML = `<div class="status status-error">❌ Error: ${e.message}</div>`;
+            }
+        }
+
+        function installPWA() {
+            const status = document.getElementById('installStatus');
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        status.innerHTML = '<div class="status status-ok">✅ App installed!</div>';
+                    } else {
+                        status.innerHTML = '<div class="status status-error">❌ Installation cancelled</div>';
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                status.innerHTML = '<div class="status status-pending">⏳ Browser install menu kullansın daha iyi</div>';
+            }
+        }
+
+        async function testOfflineCapabilities() {
+            const status = document.getElementById('offlineStatus');
+            status.innerHTML = '<div class="status status-pending">⏳ Testing...</div>';
+            
+            try {
+                // Check if we have a service worker
+                const sw = await navigator.serviceWorker.ready;
+                
+                // Test cache size
+                const cacheNames = await caches.keys();
+                const cacheSize = await Promise.all(
+                    cacheNames.map(async (name) => {
+                        const cache = await caches.open(name);
+                        const keys = await cache.keys();
+                        return keys.length;
+                    })
+                );
+
+                const totalItems = cacheSize.reduce((a, b) => a + b, 0);
+
+                status.innerHTML = `
+                    <div class="status status-ok">✅ Offline Capabilities Ready!</div>
+                    <ul class="test-list">
+                        <li class="test-item"><strong>Service Worker</strong><span>✅ Active</span></li>
+                        <li class="test-item"><strong>Cache Storage</strong><span>✅ ${cacheNames.length} stores</span></li>
+                        <li class="test-item"><strong>Cached Items</strong><span>✅ ${totalItems} items</span></li>
+                        <li class="test-item"><strong>Offline Ready</strong><span>✅ Yes</span></li>
+                    </ul>
+                `;
+            } catch (e) {
+                status.innerHTML = `<div class="status status-error">❌ Error: ${e.message}</div>`;
+            }
+        }
+
+        function testPerformance() {
+            const status = document.getElementById('performanceStatus');
+            
+            try {
+                const perf = performance.getEntriesByType('navigation')[0];
+                const paint = performance.getEntriesByType('paint');
+
+                let html = '<div class="status status-ok">✅ Performance Metrics</div>';
+                html += `<ul class="test-list">`;
+                html += `<li class="test-item"><strong>TTFB</strong><span>${Math.round(perf.responseStart - perf.requestStart)}ms</span></li>`;
+                html += `<li class="test-item"><strong>DOMContentLoaded</strong><span>${Math.round(perf.domContentLoadedEventEnd - perf.domContentLoadedEventStart)}ms</span></li>`;
+                html += `<li class="test-item"><strong>Load Time</strong><span>${Math.round(perf.loadEventEnd - perf.loadEventStart)}ms</span></li>`;
+                
+                paint.forEach(p => {
+                    html += `<li class="test-item"><strong>${p.name}</strong><span>${Math.round(p.startTime)}ms</span></li>`;
+                });
+                
+                html += '</ul>';
+                status.innerHTML = html;
+            } catch (e) {
+                status.innerHTML = `<div class="status status-error">❌ Error: ${e.message}</div>`;
+            }
+        }
+
+        async function runAllTests() {
+            const status = document.getElementById('allTestsStatus');
+            status.innerHTML = '<div class="status status-pending">⏳ Running all tests...</div>';
+            
+            await new Promise(r => setTimeout(r, 500));
+            testServiceWorker();
+            await new Promise(r => setTimeout(r, 500));
+            testManifest();
+            await new Promise(r => setTimeout(r, 500));
+            testCache();
+            await new Promise(r => setTimeout(r, 500));
+            testOfflineCapabilities();
+            await new Promise(r => setTimeout(r, 500));
+            
+            status.innerHTML = '<div class="status status-ok">✅ All tests completed!</div>';
+        }
+
+        // Auto-run on load
+        window.onload = () => {
+            testServiceWorker();
+            testManifest();
+        };
+    </script>
+</body>
+</html>

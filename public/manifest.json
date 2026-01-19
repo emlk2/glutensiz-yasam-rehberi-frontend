@@ -1,0 +1,62 @@
+{
+  "name": "Glutensiz Yaşam Rehberi",
+  "short_name": "Glutensiz",
+  "description": "Çölyak hastaları için gluten tarama uygulaması",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#10b981",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["health", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Barkod Tara",
+      "short_name": "Barkod",
+      "description": "Ürün barkodunu tara",
+      "url": "/?page=barcode",
+      "icons": [
+        {
+          "src": "/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "İçindekiler Analizi",
+      "short_name": "OCR",
+      "description": "Malzemeleri fotoğrafla",
+      "url": "/?page=ingredients",
+      "icons": [
+        {
+          "src": "/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

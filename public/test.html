@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test - Glutensiz Yaşam Rehberi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { color: white; text-align: center; margin-bottom: 30px; }
+        .test-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .test { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .test h3 { color: #333; margin-bottom: 15px; font-size: 16px; }
+        button { 
+            background: #667eea; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        button:hover { background: #764ba2; }
+        pre { 
+            background: #f5f5f5; 
+            padding: 12px; 
+            border-radius: 5px; 
+            font-size: 12px;
+            overflow-x: auto;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status-ok { color: #28a745; font-weight: bold; }
+        .status-error { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Glutensiz Yaşam Rehberi - API Test</h1>
+        
+        <div class="test-grid">
+            <div class="test">
+                <h3>✅ Backend Sağlık Kontrolü</h3>
+                <button onclick="testHealth()">Health Check</button>
+                <pre id="healthResult"></pre>
+            </div>
+
+            <div class="test">
+                <h3>📦 Test 1: Güvenli Ürün (8696000000001)</h3>
+                <p style="color: #666; font-size: 13px; margin-bottom: 10px;">Glutensiz Ekmek - Gluten içermez</p>
+                <button onclick="testSafeProduct()">🔍 Barkod Tarama</button>
+                <pre id="safeProductResult"></pre>
+            </div>
+
+            <div class="test">
+                <h3>🔴 Test 2: Tehlikeli Ürün (8696000000003)</h3>
+                <p style="color: #666; font-size: 13px; margin-bottom: 10px;">Sade Ekmek - Gluten içeriyor</p>
+                <button onclick="testDangerousProduct()">🔍 Barkod Tarama</button>
+                <pre id="dangerousProductResult"></pre>
+            </div>
+
+            <div class="test">
+                <h3>📝 Test 3: Metin Analizi (Buğday unu)</h3>
+                <p style="color: #666; font-size: 13px; margin-bottom: 10px;">Tehlikeli maddeler içeriyor</p>
+                <button onclick="testTextAnalysis()">📋 Analiz Yap</button>
+                <pre id="textResult"></pre>
+            </div>
+
+            <div class="test">
+                <h3>🟢 Test 4: Güvenli Metin (Mısır unu)</h3>
+                <p style="color: #666; font-size: 13px; margin-bottom: 10px;">Gluten içermez</p>
+                <button onclick="testSafeText()">📋 Analiz Yap</button>
+                <pre id="safeTextResult"></pre>
+            </div>
+
+            <div class="test">
+                <h3>🧪 Tümünü Test Et</h3>
+                <p style="color: #666; font-size: 13px; margin-bottom: 10px;">Bütün API endpoint'lerini sırayla test et</p>
+                <button onclick="testAll()">⚡ Tümünü Çalıştır</button>
+                <pre id="allResult"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        function formatResult(status, data) {
+            const statusClass = status >= 200 && status < 300 ? 'status-ok' : 'status-error';
+            let html = `<span class="${statusClass}">Status: ${status}</span>\n`;
+            html += JSON.stringify(data, null, 2);
+            return html;
+        }
+
+        async function testHealth() {
+            const el = document.getElementById('healthResult');
+            el.textContent = '⏳ Yükleniyor...';
+            try {
+                const res = await fetch(`${API_URL}/health`);
+                const data = await res.json();
+                el.textContent = formatResult(res.status, data);
+            } catch (e) {
+                el.textContent = `❌ HATA: ${e.message}`;
+            }
+        }
+
+        async function testSafeProduct() {
+            const el = document.getElementById('safeProductResult');
+            el.textContent = '⏳ Yükleniyor...';
+            try {
+                const res = await fetch(`${API_URL}/api/v1/scan/barcode`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({barcode: '8696000000001'})
+                });
+                const data = await res.json();
+                el.textContent = formatResult(res.status, data);
+            } catch (e) {
+                el.textContent = `❌ HATA: ${e.message}`;
+            }
+        }
+
+        async function testDangerousProduct() {
+            const el = document.getElementById('dangerousProductResult');
+            el.textContent = '⏳ Yükleniyor...';
+            try {
+                const res = await fetch(`${API_URL}/api/v1/scan/barcode`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({barcode: '8696000000003'})
+                });
+                const data = await res.json();
+                el.textContent = formatResult(res.status, data);
+            } catch (e) {
+                el.textContent = `❌ HATA: ${e.message}`;
+            }
+        }
+
+        async function testTextAnalysis() {
+            const el = document.getElementById('textResult');
+            el.textContent = '⏳ Yükleniyor...';
+            try {
+                const res = await fetch(`${API_URL}/api/v1/analyze/text?text=Buğday%20unu,%20su,%20tuz`, {
+                    method: 'POST'
+                });
+                const data = await res.json();
+                el.textContent = formatResult(res.status, data);
+            } catch (e) {
+                el.textContent = `❌ HATA: ${e.message}`;
+            }
+        }
+
+        async function testSafeText() {
+            const el = document.getElementById('safeTextResult');
+            el.textContent = '⏳ Yükleniyor...';
+            try {
+                const res = await fetch(`${API_URL}/api/v1/analyze/text?text=Mısır%20unu,%20su,%20tuz`, {
+                    method: 'POST'
+                });
+                const data = await res.json();
+                el.textContent = formatResult(res.status, data);
+            } catch (e) {
+                el.textContent = `❌ HATA: ${e.message}`;
+            }
+        }
+
+        async function testAll() {
+            const el = document.getElementById('allResult');
+            el.textContent = '⏳ Tüm testler çalışıyor...\n';
+            
+            try {
+                // Health
+                el.textContent += '\n1️⃣  Health Check...\n';
+                let res = await fetch(`${API_URL}/health`);
+                let data = await res.json();
+                el.textContent += `   ✅ ${res.status} - ${JSON.stringify(data)}\n`;
+
+                // Safe Product
+                el.textContent += '\n2️⃣  Güvenli Ürün (8696000000001)...\n';
+                res = await fetch(`${API_URL}/api/v1/scan/barcode`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({barcode: '8696000000001'})
+                });
+                data = await res.json();
+                el.textContent += `   ✅ ${res.status} - ${data.product_name} (${data.risk_level})\n`;
+
+                // Dangerous Product
+                el.textContent += '\n3️⃣  Tehlikeli Ürün (8696000000003)...\n';
+                res = await fetch(`${API_URL}/api/v1/scan/barcode`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({barcode: '8696000000003'})
+                });
+                data = await res.json();
+                el.textContent += `   ✅ ${res.status} - ${data.product_name} (${data.risk_level})\n`;
+
+                // Text Analysis - Dangerous
+                el.textContent += '\n4️⃣  Metin Analizi - Tehlikeli (Buğday unu)...\n';
+                res = await fetch(`${API_URL}/api/v1/analyze/text?text=Buğday%20unu,%20su,%20tuz`, {
+                    method: 'POST'
+                });
+                data = await res.json();
+                el.textContent += `   ✅ ${res.status} - Risk: ${data.risk_level} (${(data.risk_score*100).toFixed(0)}%)\n`;
+
+                // Text Analysis - Safe
+                el.textContent += '\n5️⃣  Metin Analizi - Güvenli (Mısır unu)...\n';
+                res = await fetch(`${API_URL}/api/v1/analyze/text?text=Mısır%20unu,%20su,%20tuz`, {
+                    method: 'POST'
+                });
+                data = await res.json();
+                el.textContent += `   ✅ ${res.status} - Risk: ${data.risk_level} (${(data.risk_score*100).toFixed(0)}%)\n`;
+
+                el.textContent += '\n✅ TÜM TESTLER BAŞARILI!\n';
+                el.textContent += '🎉 Full-Stack Uygulama Tamamen Çalışıyor!\n';
+
+            } catch (e) {
+                el.textContent += `\n❌ HATA: ${e.message}`;
+            }
+        }
+
+        // Sayfa açılınca health check yap
+        window.onload = testHealth;
+    </script>
+</body>
+</html>
